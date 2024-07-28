@@ -1,0 +1,164 @@
+<html>
+
+ <head>
+ 
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Graphical consumption averager - Martin Hubáček</title>
+    <link href="layout.css" rel="stylesheet" type="text/css">
+    <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="jquery.flot.js"></script>
+ </head>
+
+<body>
+
+<style>
+#placeholder {
+	float:left;
+	margin : 20px;
+}
+
+.textBlock {
+	margin: 20px;
+
+}
+
+#items {
+
+}
+
+input.consumption, input.duration, .headCons , .headDur {
+	width:90px;
+}
+
+.headCons , .headDur {
+	padding:5px;
+}
+
+.headCons {
+	//float:left;
+}
+
+.cross {
+	color:gray;
+	border: solid 1px #eeeeee;
+	padding: 0px 4px 0px 4px;
+	cursor: default;
+	margin-left: 5px;
+}
+
+.buttons {
+	margin-bottom: 10px;
+}
+</style>
+
+<h1>Graphical consumption averager</h1>
+
+<div id="placeholder" style="width:700px;height:400px;"></div>
+
+<div class="textBlock">
+
+
+<div class="buttons">
+<input type="button" value="Redraw" onclick="redrawGraph()" />
+<input type="button" value="Add line" onclick="addItem()" />
+</div>
+
+<span class="headCons">Consumption</span>
+<span class="headDur">Duration</span>
+
+
+
+<div id="items" />
+</div>
+
+
+<script>
+
+
+
+function redrawGraph()
+{
+	var graphs = [];
+	
+	var d = [];
+	
+	var t = 0;
+	var avgCons = 0;
+	var items = 0;
+	
+	var totalTime = 0;
+	$("input[class='duration']").each(function() {totalTime += ($(this).val()-0)});
+
+	$("#items > div").each(function(i) { 
+
+		var consumption = $(this).children("input[class='consumption']");
+		var duration = $(this).children("input[class='duration']");
+
+		d.push([t, consumption.val()]); 
+		t += (duration.val()-0);
+		d.push([t, consumption.val()]);
+		
+		avgCons += consumption.val() * (duration.val() / totalTime);
+		items++;
+
+	});
+	graphs.push({label: 'Current cons.', data: d});
+	
+	// Compute average
+	var gAvg = [];
+	var resultAvg = (avgCons);
+	gAvg.push([0, resultAvg]);
+	gAvg.push([t, resultAvg]);
+	graphs.push({label: 'Average cons. = ' + Math.round(resultAvg), data: gAvg});
+
+
+	$.plot($("#placeholder"), graphs,  { xaxis: { mode: "",timeformat: "%d.%m %h:%M:%s" }, legend:{position:"nw"}  });
+
+}
+
+function addItem()
+{
+	var consumption = $("<input type='text'>").addClass("consumption").val(Math.floor(Math.random()*100));
+	var duration = $("<input>").addClass("duration").val((Math.floor(Math.random()*100)));
+	var del = $("<span>").addClass("cross").html("×").click(function() {$(this).parent().remove();});
+	
+	var div = $("<div>");
+	div.append(consumption);
+	div.append(duration);
+	div.append(del);
+	
+	$("#items").append(div);
+}
+
+$(function()
+{
+
+	addItem();
+	addItem();
+	addItem();
+	addItem();
+
+
+	redrawGraph();
+	
+  });
+</script>
+
+
+<script type="text/javascript">
+  var uvOptions = {};
+  (function() {
+    var uv = document.createElement('script'); uv.type = 'text/javascript'; uv.async = true;
+    uv.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'widget.uservoice.com/EnTxphvp6X7LIV9UgZEGWw.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(uv, s);
+  })();
+</script>
+
+<div style="clear:left;">
+<a href = "http://martinhubacek.cz">http://martinhubacek.cz</a>
+</div>
+
+</body>
+
+</html>
